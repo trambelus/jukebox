@@ -12,7 +12,7 @@
 <h1>Welcome to the Jukebox</h1>
 {% if app.track %}
 <h2>Now playing: {{ app.track.name|escape }}</h2>
-<h3>Album: <a href="/album/{{ app.track.album.id }}">{{ app.track.album.name|escape }}</a>{% if app.track.album.artwork %} <img src="{{ app.track.album.artwork }}" border=0 alt="Album art">{% endif %}</h3>
+<h3>Album: {{ app.track.album|format_album }}</h3>
 <h3>By</h3>
 {% for artist in app.track.artists %}
 {{ artist|format_artist }}
@@ -21,7 +21,7 @@
 <h2>Nothing playing</h2>
 {% endif %}
 <hr>
-<h2>Menu</h2>
+<h1>Menu</h1>
 <p><a href="/">Home</a> | <a href="/queue">View the queue</a></p>
 {% block main %}<! -- Body stuff goes here. -->{% endblock %}
 <hr>
