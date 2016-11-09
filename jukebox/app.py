@@ -30,3 +30,6 @@ def play_manager():
             logger.info('Playing track: %s.', track)
             app.stream.play()
             app.track = track
+        else:
+            app.track = None
+            app.stream = None

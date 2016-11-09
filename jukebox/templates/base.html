@@ -11,7 +11,7 @@
 <body>
 <h1>Welcome to the Jukebox</h1>
 {% if app.track %}
-<h2>Now playing: {{ app.track.name|escape }}</h2>
+<h2>Now playing: {{ app.track.title|escape }}</h2>
 <h3>Album: {{ app.track.album|format_album }}</h3>
 <h3>By</h3>
 {% for artist in app.track.artists %}
