@@ -1,9 +1,7 @@
 """The Klein instance."""
 
-import os, os.path, logging
-from random import choice
+import logging
 from klein import Klein
-from requests import get
 from .api import api
 
 logger = logging.getLogger(__name__)

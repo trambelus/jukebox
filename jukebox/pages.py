@@ -8,14 +8,15 @@ from .search_form import SearchForm
 from .util import convert
 from .settings import ISettings
 from . import metadata
+from lyricscraper.lyrics import get_lyrics as _get_lyrics
+from urllib.parse import unquote
 from multidict import MultiDict
 from twisted.internet.defer import inlineCallbacks, returnValue
-
-form = SearchForm()
 
 @app.route('/')
 def home(request):
     """Home page."""
+    form = SearchForm()
     if request.args:
         data = convert(request.args)
         if 'search' in data:
@@ -51,6 +52,7 @@ def home(request):
 @inlineCallbacks
 def get_artist(request, id):
     """Render an artist to the home page."""
+    form = SearchForm()
     try:
         artist = yield api.get_artist_info(id)
         artist = metadata.get_artist(artist)
@@ -69,6 +71,7 @@ def get_artist(request, id):
 @inlineCallbacks
 def get_album(request, id):
     """Get an album and render it to the home page."""
+    form = SearchForm()
     try:
         album = yield api.get_album_info(id)
         album = metadata.get_album(album)
@@ -91,7 +94,7 @@ def queue_track(request, id):
     try:
         track = yield api.get_track_info(id)
         track = metadata.get_track(track)
-        queued = track in app.queue
+        queued = (track is app.track) or (track in app.queue)
         if not queued:
             app.queue.append(track)
             app.owners[track] = request.getSession().uid
@@ -133,3 +136,20 @@ def delete_track(request, id):
 def queue(request):
     """Show the queue."""
     return render_template(request, 'queue.html')
+
+@app.route('/lyrics/<artist>/<title>')
+@inlineCallbacks
+def get_lyrics(request, artist, title):
+    """Get the lyrics for a particular track."""
+    artist = unquote(artist)
+    title = unquote(title)
+    lyrics = yield _get_lyrics(artist, title)
+    returnValue(
+        render_template(
+            request,
+            'lyrics.html',
+            artist = artist,
+            title = title,
+            lyrics = lyrics
+        )
+    )
