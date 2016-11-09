@@ -1,0 +1,13 @@
+twisted
+klein
+hg+http://hg.q-continuum.net/platform_utils#egg=platform_utils
+hg+http://hg.q-continuum.net/libloader#egg=libloader
+hg+http://hg.q-continuum.net/sound_lib#egg=sound_lib
+configobj
+git+https://github.com/chrisnorman7/lyricscraper.git
+six
+multidict
+gmusicapi
+git+https://github.com/chrisnorman7/default_argparse.git
+jinja2
+wtforms
