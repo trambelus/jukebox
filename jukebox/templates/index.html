@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{% if artist %}{{ artist.name|escape }}{% elif album %}{% if album.artists %}{{ album.artists[0].name|escape }}{% else %}Unknown Artist{% endif %} - {{ album.name|escape }}{% elif settings.tracks %}Search Results{% else %}Index{% endif %}{% endblock %}
+{% block main %}
+{% if artist %}
+<h3>Artist</h3>
+{{ artist|format_artist }}
+<h4>Top Tracks ({{artist.top_tracks|length }})</h4>
+{% if artist.top_tracks %}
+{{ tracks_table_header }}
+{% for track in artist.top_tracks %}
+{{ track|format_track }}
+{% endfor %}
+{{ table_footer }}
+{% else %}
+<p>No top tracks to display.</p>
+{% endif %}
+<h4>Albums ({{ artist.albums|length }})</h4>
+{% if artist.albums %}
+<ul>
+{% for album in artist.albums %}
+<li>{{ album|format_album }}</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No albums to display.</p>
+{% endif %}
+{% endif %}
+<h3>Search</h3>
+<form action="/" method="post">
+{% for field in form %}
+<p>{{ field }}</p>
+{% endfor %}
+<p><input type="submit" value="Search"></p>
+</form>
+<h3>{% if album %}{{ album.name|escape }}{% else %}Track Results{% endif %} ({{ settings.tracks | length }})</h3>
+{% if album %}
+<ul>
+{% for artist in album.artists %}
+<li>{{ artist|format_artist }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% if settings.tracks %}
+{{ tracks_table_header }}
+{% for track in settings.tracks %}
+{{ track|format_track }}
+{% endfor %}
+{{ table_footer }}
+{% endif %}
+{% if settings.artists %}
+<h3>Artist Results ({{ settings.artists|length }})</h3>
+<ul>
+{% for artist in settings.artists %}
+<li>{{ artist|format_artist }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% if settings.albums %}
+<h3>Album Results ({{ settings.albums|length }})</h3>
+<ul>
+{% for album in settings.albums %}
+<li>{{ album|format_album }},/li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

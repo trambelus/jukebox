@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Queue{% endblock %}
+{% block main%}
+<h1>Queue</h1>
+{% if app.queue %}
+<ul>
+{% for track in app.queue %}
+<li>{{ track|escape }}{% if track.album_art_url %} <img src=%{{ track.album_art_url }}" border=0 alt="Album art">{% endif %}{% if track in app.owners and request.getSession().uid == app.owners[track] %}<a class="track-link" href="/delete_track/{{ track.id }}" id="{{ track.id }}">Delete</a>{% endif %}</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>The queue is empty.</p>
+{% if app.default %}
+<p>Music will be randomly selected from the {{ app.default.name }} playlist.</p>
+{% else %}
+<p>No music will play until a track is queued.</P.
+{% endif %}
+{% endif %}
+<p><a href="/">Back to home</a></p>
+{% endblock %}

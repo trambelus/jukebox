@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title%}Track {% if removed %}{% if track %}removed{% else %}error{% endif %}{% else %}not removed{% endif%}{% endblock %}
+{% block main %}
+<h1>Remove A Track</h1>
+{% if track %}
+<h2>Result</h2>
+<p>{{ track }} was {% if removed%}removed from{% else %}{% if track in app.queue %}not removed from{% else %} not in{% endif %}{% endif %} the queue.</p>
+{% if track in app.owners %}
+<p>You did not add this track.</p>
+{% endif %}
+{% else %}
+<h2>ERROR</h2>
+<p>Invalid track ID provided.</p>
+{% endif %}
+<p><a href="/">OK</a></p>
+{% endblock %}

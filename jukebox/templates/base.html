@@ -1,0 +1,30 @@
+<!doctype html/>
+<html>
+<head>
+<title>{{ app_name }} | {% block title %}Front Page{% endblock %}</title>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="Robots" content="NoIndex, NoFollow" />
+<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" id="Stylesheet_jQueryUI" rel="stylesheet" type="text/css" />
+{% block head %}<!-- head things go here. -->{% endblock %}
+</head>
+<body>
+<h1>Welcome to the Jukebox</h1>
+{% if app.track %}
+<h2>Now playing: {{ app.track.name|escape }}</h2>
+<h3>Album: <a href="/album/{{ app.track.album.id }}">{{ app.track.album.name|escape }}</a>{% if app.track.album.artwork %} <img src="{{ app.track.album.artwork }}" border=0 alt="Album art">{% endif %}</h3>
+<h3>By</h3>
+{% for artist in app.track.artists %}
+{{ artist|format_artist }}
+{% endfor %}
+{% else %}
+<h2>Nothing playing</h2>
+{% endif %}
+<hr>
+<h2>Menu</h2>
+<p><a href="/">Home</a> | <a href="/queue">View the queue</a></p>
+{% block main %}<! -- Body stuff goes here. -->{% endblock %}
+<hr>
+<p>Queue length: {% if duration %}{{ duration|format_timedelta }}{% else %}0 seconds{% endif %} ({{ app.queue|length }} {% if app.queue|length == 1 %}track{% else %}tracks{% endif %}).</p>
+</body>
+</html>
