@@ -3,7 +3,7 @@
 if __name__ == '__main__':
     from default_argparse import parser
     parser.add_argument('--host', default = '0.0.0.0', help = 'The interface on which to run the web server')
-    parser.add_argument('-p', '--port', type = int, default = 5853, help = 'The port to run the Jukebox on')
+    parser.add_argument('-p', '--port', type = int, default = 80, help = 'The port to run the Jukebox on')
     parser.add_argument('-i', '--interval', type = float, default = 0.2, help = 'How often should the jukebox check the queue')
     parser.add_argument('-o', '--output-device', type = int, default = -1, help = 'The output device to use')
     parser.add_argument('--list-devices', action = 'store_true', help = 'List output devices')
