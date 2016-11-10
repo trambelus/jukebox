@@ -90,6 +90,17 @@ def format_artist(artist):
 
 environment.filters['format_artist'] = format_artist
 
+def format_playlist(playlist):
+    """Format a playlist."""
+    escape = environment.filters['escape']
+    return '<h3><a href="/playlist/{0.id}">{name}</a></h3>\n<p><pre>{description}</pre></h3>'.format(
+        playlist,
+        name = escape(playlist.name),
+        description = escape(playlist.description)
+    )
+
+environment.filters['format_playlist'] = format_playlist
+
 environment.globals['app_name'] = '{0.name} V{0.__version__}'.format(application)
 environment.globals['app'] = app
 

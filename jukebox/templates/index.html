@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{% if artist %}{{ artist.name|escape }}{% elif album %}{% if album.artists %}{{ album.artists[0].name|escape }}{% else %}Unknown Artist{% endif %} - {{ album.name|escape }}{% elif settings.tracks %}Search Results{% else %}Index{% endif %}{% endblock %}
+{% block title %}{% if artist %}{{ artist.name|escape }}{% elif album %}{% if album.artists %}{{ album.artists[0].name|escape }}{% else %}Unknown Artist{% endif %} - {{ album.name|escape }}{% elif playlist %}{{ playlist.name|escape }}{% elif settings.tracks %}Search Results{% else %}Index{% endif %}{% endblock %}
 {% block main %}
 {% if artist %}
 <h3>Artist</h3>
@@ -34,6 +34,15 @@
 {% else %}
 <p>No related artists to display.</p>
 {% endif %}
+{% endif %}
+{% if playlist %}
+<h2>Playlist</h2>
+{{ playlist|format_playlist }}
+{{ tracks_table_header }}
+{% for track in playlist.tracks %}
+{{ track|format_track }}
+{% endfor %}
+{{ table_footer }}
 {% endif %}
 <h2>Search</h2>
 <form action="/" method="post">
@@ -72,5 +81,11 @@
 <li>{{ album|format_album }},/li>
 {% endfor %}
 </ul>
+{% endif %}
+{% if settings.playlists %}
+<h2>Playlist Results ({{ settings.playlists|length }})</h2>
+{% for playlist in settings.playlists %}
+{{ playlist|format_playlist }}
+{% endfor %}
 {% endif %}
 {% endblock %}

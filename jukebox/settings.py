@@ -11,6 +11,7 @@ class ISettings(Interface):
     tracks = Attribute('The tracks loaded for this session.')
     artists = Attribute('The artists loaded for this session.')
     albums = Attribute('The albums loaded for this session.')
+    playlists = Attribute('The playlists loaded for this session.')
 
 @implementer(ISettings)
 class Settings(object):
@@ -18,5 +19,6 @@ class Settings(object):
         self.tracks = []
         self.artists = []
         self.albums = []
+        self.playlists = []
 
 registerAdapter(Settings, Session, ISettings)

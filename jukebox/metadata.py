@@ -2,9 +2,10 @@
 
 from datetime import timedelta
 
+tracks = {}
 artists = {}
 albums = {}
-tracks = {}
+playlists = {}
 
 def get_id(d):
     """Get the id from a dictionary d."""
@@ -169,3 +170,46 @@ def get_track(data):
         track = Track(data)
     track.populate(data)
     return track
+
+class Playlist:
+    """A playlist."""
+    def __init__(self, data):
+        """Initialise the playlist."""
+        self.id = None
+        self.name = None
+        self.description = None
+        self.tracks = []
+        self.populate(data)
+    
+    def populate(self, data):
+        """Populate with data."""
+        self.id = data.get('shareToken') or self.id
+        if self.id is None:
+            raise ValueError('No share token found in data %r.' % data)
+        playlists[self.id] = self
+        self.name = data.get('name') or self.name
+        if self.name is None:
+            self.name = 'Untitled Playlist'
+        self.description = data.get('description') or self.description
+        if self.description is None:
+            self.description = 'No description available.'
+        if 'tracks' in data:
+            self.tracks.clear()
+            for t in data.get('tracks', []):
+                self.tracks.append(get_track(t['track']))
+    
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return '{0.__class__.__name__(name = {0.name}, description = {0.description})'.format(self)
+
+def get_playlist(data):
+    """Get a playlist."""
+    id = data.get('shareToken')
+    if id in playlists:
+        playlist = playlists[id]
+    else:
+        playlist = Playlist(data)
+    playlist.populate(data)
+    return playlist
