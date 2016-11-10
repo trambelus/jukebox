@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Lyrics for {{ artist|escape }} - {{ title|escape }}{% endblock %}
+{% block title %}{% if lyrics %}Lyrics for {{ artist|escape }} - {{ title|escape }}{% else %}No Lyrics Found{% endif %}{% endblock %}
 {% block main %}
 <h2>Lyrics</h2>
 {% if lyrics %}

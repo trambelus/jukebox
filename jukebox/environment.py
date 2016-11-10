@@ -48,13 +48,16 @@ environment.filters['format_timedelta'] = format_timedelta
 def format_track(track):
     """Format a track into a table row: track number, track title, album, artist(s), album art."""
     escape = environment.filters['escape']
-    return '<tr>\n<td>{0.track_number}</td>\n<td><a href="/queue_track/{0.id}">{title}</a></td>\n<td><a href="/album/{0.album.id}">{album}</a></td>\n<td>{artists}</td>\n<td>{duration}</td>\n<td>{album_art}</td>\n</tr>\n'.format(
+    urlencode = environment.filters['urlencode']
+    return '<tr>\n<td>{0.track_number}</td>\n<td><a href="/queue_track/{0.id}">{title}</a></td>\n<td><a href="/album/{0.album.id}">{album}</a></td>\n<td>{artists}</td>\n<td>{duration}</td>\n<td>{album_art}</td>\n<td><a href="/lyrics/{artist_encode}/{title_encode}" target="_blank">Lyrics</a></td>\n</tr>\n'.format(
         track,
         title = escape(track.title),
         album = escape(track.album),
         artists = ', '.join(['<a href="/artist/{0.id}">{0.name}</a>'.format(artist) for artist in track.artists]),
         duration = format_timedelta(track.duration),
-        album_art = '<a href="{0.artwork}" target="_blank"><img src="{0.artwork}" border=0 alt="Album art"></a>'.format(track.album) if track.album.artwork is not None else '-'
+        album_art = '<a href="{0.artwork}" target="_blank"><img src="{0.artwork}" alt="Album art"></a>'.format(track.album) if track.album.artwork is not None else '-',
+        artist_encode = urlencode(track.artists[0] if track.artists else 'Unknown Artist'),
+        title_encode = urlencode(track.title)
     )
 
 environment.filters['format_track'] = format_track
@@ -67,7 +70,7 @@ def format_album(album):
         artist = escape(album.artists[0].name if album.artists else 'Unknown Artist'),
         name = escape(album.name),
         year = escape(album.year),
-        artwork = ' <a href="{0}" target="_blank"><img src="{0}" border=0 alt="Album art"></a>'.format(album.artwork) if album.artwork else ''
+        artwork = ' <a href="{0}" target="_blank"><img src="{0}" alt="Album art"></a>'.format(album.artwork) if album.artwork else ''
     )
 
 environment.filters['format_album'] = format_album
@@ -79,7 +82,7 @@ def format_artist(artist):
     if artist.artwork_urls:
         text += '\n<ul>'
         for url in artist.artwork_urls:
-            text += '\n<li><a href="{0}" target="_blank"><img src="{0}" border=0 alt="Artist artwork"></a></li>'.format(url)
+            text += '\n<li><a href="{0}" target="_blank"><img src="{0}" alt="Artist artwork"></a></li>'.format(url)
         text += '\n</ul>'
     if artist.bio:
         text += '\n<p>{}</p>'.format(str(artist.bio).replace('\n\n', '</p>\n<p>'))
@@ -108,6 +111,6 @@ def render_template(request, name, *args, **kwargs):
     kwargs.setdefault('session', request.getSession())
     kwargs.setdefault('settings', ISettings(kwargs['session']))
     kwargs.setdefault('duration', sum([track.duration for track in app.queue], timedelta()))
-    kwargs.setdefault('tracks_table_header', '<table>\n<tr>\n<th>Track Number</th>\n<th>Title</th>\n<th>Album</th>\n<th>Artist(s)</th>\n<th>Duration</th>\n<th>Album Art</th></tr>\n')
-    kwargs.setdefault('table_footer', '</tr>\n</table>')
+    kwargs.setdefault('tracks_table_header', '<table>\n<tr>\n<th>Track Number</th>\n<th>Title</th>\n<th>Album</th>\n<th>Artist(s)</th>\n<th>Duration</th>\n<th>Album Art</th><th>Lyrics</th>\n</tr>\n')
+    kwargs.setdefault('table_footer', '</table>')
     return template.render(*args, **kwargs)
