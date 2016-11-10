@@ -11,6 +11,7 @@ app.track = None # The currently-playing track.
 app.stream = None # The currently playing stream.
 app.queue = [] # The tracks to be played.
 app.owners = {} # track: owner pares.
+app.owner = None # The owner of the currently playing track.
 
 from sound_lib.stream import URLStream
 
@@ -20,7 +21,10 @@ def play_manager():
         if app.queue:
             track = app.queue.pop(0)
             if track in app.owners:
+                app.owner = app.owners[track]
                 del app.owners[track]
+            else:
+                app.owner = None
             if track.artists[0].bio is None:
                 track.artists[0].populate(api.get_artist_info(track.artists[0].id))
             url = api.get_stream_url(track.id)
@@ -31,3 +35,4 @@ def play_manager():
         else:
             app.track = None
             app.stream = None
+            app.owner = None

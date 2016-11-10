@@ -11,6 +11,9 @@
 <h1>Welcome to the Jukebox</h1>
 {% if app.track %}
 <h2>Now playing: {{ app.track.title|escape }}</h2>
+{% if app.owner == request.getSession().uid %}
+<p><a href="/skip">Skip</a></p>
+{% endif %}
 {% if app.track.artists %}
 <p><a href="/lyrics/{{ app.track.artists[0].name|urlencode }}/{{ app.track.title|urlencode }}" target="_blank">Lyrics</a></p>
 {% endif %}

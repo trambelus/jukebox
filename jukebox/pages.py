@@ -153,3 +153,10 @@ def get_lyrics(request, artist, title):
             lyrics = lyrics
         )
     )
+
+@app.route('/skip')
+def skip(request):
+    """Skip the currently playing track."""
+    if app.stream and request.getSession().uid == app.owner:
+        app.stream.set_position(app.stream.get_length() - 1)
+    request.redirect('/')
