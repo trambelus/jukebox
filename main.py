@@ -30,7 +30,11 @@ if __name__ == '__main__':
     config.write()
     import logging
     logging.basicConfig(stream = args.log_file, level = args.log_level, format = args.log_format)
-    from jukebox.api import api
+    try:
+        from jukebox.api import api
+    except ImportError as e:
+        logging.critical(str(e))
+        raise SystemExit
     logging.info('Loaded api %r.', api)
     from jukebox.app import app, play_manager
     import application
@@ -51,4 +55,8 @@ if __name__ == '__main__':
     args.interval = abs(args.interval)
     logging.info('Checking the queue every %.2f seconds.', args.interval)
     loop.start(args.interval)
-    app.run(args.host, args.port, logFile = args.log_file)
+    try:
+        app.run(args.host, args.port, logFile = args.log_file)
+    except Exception as e:
+        logging.exception(e)
+        logging.critical('Starting the app failed: %s.', e)
