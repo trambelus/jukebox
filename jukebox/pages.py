@@ -151,7 +151,7 @@ def delete_track(request, id):
                 del app.owners[track]
             settings.message = '{} was removed from the play queue.'.format(track)
         else:
-            settings.message = '{} was removed from the play queue.'.format(track if track is not None else 'Nothing')
+            settings.message = '{} was not removed from the play queue.'.format(track if track is not None else 'Nothing')
     else:
         settings.message = 'You do not have permission to remove this track from the play queue.'
     return default_render(request)
