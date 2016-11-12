@@ -72,7 +72,9 @@ $(document).ready(function () {
                 if (data.message && data.message != old_message) {
                     old_message = data.message
                     $("#message").show()
-                    $("#message_content").text(data.message)
+                    setTimeout(function() {
+                        $("#message_content").text(data.message)
+                    }, 10)
                 }
                 if (data.now_playing != old_now_playing) {
                     old_now_playing = data.now_playing
@@ -139,7 +141,7 @@ $(document).ready(function () {
 {% endblock %}
 {% block main %}
 <h1>Welcome to the jukebox</h1>
-<p id="message"><span id="message_content" role="status">No message yet.</span> <input type="button" id="message_button" value="Hide"></p>
+<p class="hidden" id="message"><span id="message_content" role="status">No message yet.</span> <input type="button" id="message_button" value="OK"></p>
 <div id="now_playing">Loading...</div>
 <hr>
 {% for id in ['artist', 'album', 'playlist'] %}
