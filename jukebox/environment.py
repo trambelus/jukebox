@@ -63,7 +63,7 @@ environment.filters['format_track'] = format_track
 def format_album(album):
     """Format an album."""
     escape = environment.filters['escape']
-    return '<a class="track-album" id="{0.id}" href="/album/{0.id}">{artist} - {name} ({year})</a>{artwork}'.format(
+    return '<span><a class="track-album" id="{0.id}" href="/album/{0.id}">{artist} - {name} ({year})</a></span>{artwork}'.format(
         album,
         artist = escape(album.artists[0].name if album.artists else 'Unknown Artist'),
         name = escape(album.name),

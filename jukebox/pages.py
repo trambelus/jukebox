@@ -245,7 +245,13 @@ def get_json(request):
     else:
         d['tracks'] = '<p>No track results.</p>'
     d['artists'] = '\n'.join([format_artist(a) for a in settings.artists]) or '<p>No artist results.</p>'
-    d['albums'] = '\n'.join([format_album(a) for a in settings.albums]) or '<p>No album results.</p>'
+    if settings.albums:
+        text = '<ul>\n<li>'
+        text += '</li>\n<li>'.join([format_album(a) for a in settings.albums])
+        text += '</li>\n</ul>'
+    else:
+        text = '<p>No album results.</p>'
+    d['albums'] = text
     d['playlists'] = '\n'.join([format_playlist(p) for p in settings.playlists]) or '<p>No playlist results.</p>'
     d['message'] = settings.message
     d['tracks_header'] = settings.tracks_header
