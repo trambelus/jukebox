@@ -1,91 +1,172 @@
-{% extends 'base.html' %}
-{% block title %}{% if artist %}{{ artist.name|escape }}{% elif album %}{% if album.artists %}{{ album.artists[0].name|escape }}{% else %}Unknown Artist{% endif %} - {{ album.name|escape }}{% elif playlist %}{{ playlist.name|escape }}{% elif settings.tracks %}Search Results{% else %}Index{% endif %}{% endblock %}
-{% block main %}
-{% if artist %}
-<h3>Artist</h3>
-{{ artist|format_artist }}
-<h3>Top Tracks ({{artist.top_tracks|length }})</h3>
-{% if artist.top_tracks %}
-{{ tracks_table_header }}
-{% for track in artist.top_tracks %}
-{{ track|format_track }}
+<!doctype html>
+<html>
+<head>
+<title>{{ app_name }}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="Robots" content="NoIndex, NoFollow" />
+<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" id="Stylesheet_jQueryUI" rel="stylesheet" type="text/css" />
+<script id="Script_jQuery" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js" type="text/javascript"></script>
+<script id="Script_jQueryUI" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+<script id="Script_JsRender" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.75/jsrender.min.js" type="text/javascript"></script>
+<script id="main">
+// Sort out results.
+function fix_links() {
+    $(".track-skip").click(function(e) {
+        e.preventDefault()
+        $.get("/skip")
+    }).removeClass("track-skip")
+    $(".track-delete").click(function(e) {
+        e.preventDefault()
+        $.get("/delete_track/" + this.id)
+    }).removeClass("track-delete")
+    $(".track-queue").click(function(e) {
+        e.preventDefault()
+        $.get("/queue_track/" + this.id)
+    }).removeClass("track-queue")
+    $(".track-artist").click(function(e) {
+        e.preventDefault()
+        $.get("/artist/" + this.id)
+    }).removeClass("track-artist")
+    $(".track-album").click(function(e) {
+        e.preventDefault()
+        $.get("/album/" + this.id)
+    }).removeClass("track-album")
+    $(".playlist-link").click(function(e) {
+        e.preventDefault()
+        $.get("/playlist/" + this.id)
+    }).removeClass("playlist-link")
+}
+
+// Old search results.
+old_now_playing = null
+old_tracks = []
+old_artists = []
+old_albums = []
+old_playlists = []
+old_message = null
+old_tracks_header = null
+old_artist = null
+old_album = null
+old_playlist = null
+old_queue = null
+
+$(document).ready(function () {
+    $(".hidden").hide()
+    $("#message_button").click(function() {
+        $("#message").hide()
+    })
+    $(".toggle").click(function(e) {
+        e.preventDefault()
+        $(this.id).toggle()
+    })
+    $("#search_form").submit(function (e) {
+        e.preventDefault()
+        search = $("#search").prop("value")
+        if (search) {
+            $("#search").prop("value", "")
+            $.get(encodeURI("/modern_search/" + search))
+        } else {
+            alert("You must enter something to search for.")
+        }
+    })
+    setInterval(function() {
+        $.getJSON("/json", function(data) {
+            if (data.message && data.message != old_message) {
+                old_message = data.message
+                $("#message").show()
+                $("#message_content").text(data.message)
+            }
+            if (data.now_playing != old_now_playing) {
+                old_now_playing = data.now_playing
+                $("#now_playing").html(data.now_playing)
+            }
+            if (data.tracks_header != old_tracks_header) {
+                old_tracks_header = data.tracks_header
+                $("#tracks_header").text(data.tracks_header)
+            }
+            if (data.tracks != old_tracks) {
+                old_tracks = data.tracks
+                $("#track_results").html(data.tracks)
+            }
+            if (data.artists != old_artists) {
+                old_artists = data.artists
+                $("#artist_results").html(data.artists)
+            }
+            if (data.albums != old_albums) {
+                old_albums = data.albums
+                $("#album_results").html(data.albums)
+            }
+            if (data.playlists != old_playlists) {
+                old_playlists = data.playlists
+                $("#playlist_results").html(data.playlists)
+            }
+            if (data.artist != old_artist) {
+                if (data.artist) {
+                    old_artist = data.artist
+                    $("#artist-content").html(data.artist)
+                    $("#artist").show()
+                } else {
+                    $("#artist").hide()
+                }
+            }
+            if (data.album != old_album) {
+                if (data.album) {
+                    old_album = data.album
+                    $("#album-content").html(data.album)
+                    $("#album").show()
+                } else {
+                    $("#album").hide()
+                }
+            }
+            if (data.playlist != old_playlist) {
+                if (data.playlist) {
+                    old_playlist = data.playlist
+                    $("#playlist-content").html(data.playlist)
+                    $("#playlist").show()
+                } else {
+                    $("#playlist").hide()
+                }
+            }
+            if (data.queue != old_queue) {
+                old_queue = data.queue
+                $("#track_queue").html(data.queue)
+            }
+        fix_links()
+        })
+    }, 1000)
+})
+</script>
+</head>
+<body>
+<h1>Welcome to the jukebox</h1>
+<p>Visit the <a href="/">simple</a> web interface.</p>
+<div class="hidden" id="message">
+<h1>Message</h1>
+<p id="message_content">No message yet.</p>
+<p><input type="button" id="message_button" value="OK"></p>
+</div>
+<div id="now_playing">Loading...</div>
+<hr>
+{% for id in ['artist', 'album', 'playlist'] %}
+<div class="hidden" id="{{ id }}">
+<h3>{{ id|title }}</h3>
+<div id="{{ id }}-content"></div>
+</div>
 {% endfor %}
-{{ table_footer }}
-{% else %}
-<p>No top tracks to display.</p>
-{% endif %}
-<h3>Albums ({{ artist.albums|length }})</h3>
-{% if artist.albums %}
-<ul>
-{% for album in artist.albums %}
-<li>{{ album|format_album }}</li>
-{% endfor %}
-</ul>
-{% else %}
-<p>No albums to display.</p>
-{% endif %}
-<h3>Related Artists ({{ artist.related_artists|length }})</h3>
-{% if artist.related_artists %}
-<ul>
-{% for related_artist in artist.related_artists %}
-<li>{{ related_artist|format_artist }}</li>
-{% endfor %}
-</ul>
-{% else %}
-<p>No related artists to display.</p>
-{% endif %}
-{% endif %}
-{% if playlist %}
-<h2>Playlist</h2>
-{{ playlist|format_playlist }}
-{{ tracks_table_header }}
-{% for track in playlist.tracks %}
-{{ track|format_track }}
-{% endfor %}
-{{ table_footer }}
-{% endif %}
-<h2>Search</h2>
-<form action="/" method="post">
-{% for field in form %}
-<p>{{ field }}</p>
-{% endfor %}
+<h1>Search</h1>
+<form id="search_form">
+<p>Search: {{ form.search }}</p>
 <p><input type="submit" value="Search"></p>
 </form>
-<h2>{% if album %}{{ album.name|escape }}{% else %}Track Results{% endif %} ({{ settings.tracks | length }})</h2>
-{% if album %}
-<ul>
-{% for artist in album.artists %}
-<li>{{ artist|format_artist }}</li>
-{% endfor %}
-</ul>
-{% endif %}
-{% if settings.tracks %}
-{{ tracks_table_header }}
-{% for track in settings.tracks %}
-{{ track|format_track }}
-{% endfor %}
-{{ table_footer }}
-{% endif %}
-{% if settings.artists %}
-<h2>Artist Results ({{ settings.artists|length }})</h2>
-<ul>
-{% for artist in settings.artists %}
-<li>{{ artist|format_artist }}</li>
-{% endfor %}
-</ul>
-{% endif %}
-{% if settings.albums %}
-<h2>Album Results ({{ settings.albums|length }})</h2>
-<ul>
-{% for album in settings.albums %}
-<li>{{ album|format_album }},/li>
-{% endfor %}
-</ul>
-{% endif %}
-{% if settings.playlists %}
-<h2>Playlist Results ({{ settings.playlists|length }})</h2>
-{% for playlist in settings.playlists %}
-{{ playlist|format_playlist }}
-{% endfor %}
-{% endif %}
-{% endblock %}
+<h2><a class="toggle" id="#track_results" href="#"><div id="tracks_header">Loading...</div></a></h2>
+<div id="track_results">Loading...</div>
+<h2><a class="toggle" id="#artist_results" href="#"><div>Artist Results</div></a></h2>
+<div id="artist_results">Loading...</div>
+<h2><a class="toggle" id="#album_results" href="#"><div>Album Results</div></a></h2>
+<div id="album_results">Loading...</div>
+<h2><a class="toggle" id="#playlist_results"><div>Playlist Results</div></a></h2>
+<div id="playlist_results">Loading...</div>
+<h2><a class="toggle" id="#track_queue" href="#"><div>Play Queue</div></a></h2>
+<div class="hidden" id="track_queue">Loading...</div>
+</body>
+</html>

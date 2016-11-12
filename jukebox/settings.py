@@ -12,6 +12,11 @@ class ISettings(Interface):
     artists = Attribute('The artists loaded for this session.')
     albums = Attribute('The albums loaded for this session.')
     playlists = Attribute('The playlists loaded for this session.')
+    message = Attribute('A message to show to the user.')
+    tracks_header = Attribute('The heading before the list of tracks.')
+    artist = Attribute('The currently-focused artist.')
+    album = Attribute('The currently-focused album.')
+    playlist = Attribute('The currently loaded playlist.')
 
 @implementer(ISettings)
 class Settings(object):
@@ -20,5 +25,10 @@ class Settings(object):
         self.artists = []
         self.albums = []
         self.playlists = []
+        self.message = None
+        self.tracks_header = 'Track Results'
+        self.artist = None
+        self.album = None
+        self.playlist = None
 
 registerAdapter(Settings, Session, ISettings)
