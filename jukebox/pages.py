@@ -14,6 +14,8 @@ from multidict import MultiDict
 from twisted.internet.defer import inlineCallbacks, returnValue
 from json import dumps
 
+localhost = '127.0.0.1'
+
 def default_render(request, **kwargs):
     """The default template."""
     kwargs.setdefault('form', SearchForm())
@@ -142,7 +144,7 @@ def delete_track(request, id):
     else:
         track = None
     owner = app.owners.get(track)
-    if owner == request.getSession().uid:
+    if owner == request.getSession().uid or request.transport.getHost().host == localhost:
         if track in app.queue:
             app.queue.remove(track)
             if track in app.owners:
@@ -175,9 +177,10 @@ def get_lyrics(request, artist, title):
 def skip(request):
     """Skip the currently playing track."""
     settings = ISettings(request.getSession())
-    if app.stream and request.getSession().uid == app.owner:
+    if app.stream and (request.getSession().uid == app.owner or request.transport.getHost().host == localhost):
         app.stream.pause()
         app.stream = None
+        app.owner = None
         app.track = None
         settings.message = 'Track skipped.'
     else:
