@@ -34,7 +34,6 @@ function fix_links() {
 
 // Old search results.
 old_now_playing = null
-old_progress = null
 old_tracks = []
 old_artists = []
 old_albums = []
@@ -81,10 +80,7 @@ $(document).ready(function () {
                     old_now_playing = data.now_playing
                     $("#now_playing").html(data.now_playing)
                 }
-                if (data.progress != old_progress) {
-                    old_progress = data.old_progress
-                    $("#progress").html(data.progress)
-                }
+                $("#progress").progressbar({value: data.progress})
                 if (data.tracks_header != old_tracks_header) {
                     old_tracks_header = data.tracks_header
                     $("#tracks_header").text(data.tracks_header)
