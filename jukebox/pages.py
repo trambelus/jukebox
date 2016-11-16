@@ -237,12 +237,14 @@ def get_json(request):
     settings = ISettings(request.getSession())
     if app.track is None:
         d['now_playing'] = '<h2>Nothing Playing</h2>'
+        d['progress'] = '<p>No progress available.</p>'
     else:
         d['now_playing'] = '<h2>Now Playing: {0}</h2>\n<p>{lyrics} | <a class="track-skip" href="/skip">Skip</a></p>\n<h3>By</h3>{artists}'.format(
             app.track,
             lyrics = format_lyrics(app.track),
             artists = '\n'.join([format_artist(a) for a in app.track.artists])
         )
+        d['progress'] = '<p>({}%)</p>'.format('%.2f' % ((100.0 / (app.stream.get_length() - 1)) * app.stream.get_position()))
     if settings.tracks:
         d['tracks'] = tracks_table_header + '\n'.join([format_track(t) for t in settings.tracks]) + '\n</table>'
     else:
