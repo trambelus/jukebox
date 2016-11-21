@@ -80,7 +80,7 @@ $(document).ready(function () {
                     old_now_playing = data.now_playing
                     $("#now_playing").html(data.now_playing)
                 }
-                $("#progress").progressbar({value: data.progress})
+                $("#progress").progressbar({value: data.progress}).text(data.progress)
                 if (data.tracks_header != old_tracks_header) {
                     old_tracks_header = data.tracks_header
                     $("#tracks_header").text(data.tracks_header)
@@ -144,7 +144,7 @@ $(document).ready(function () {
 <h1>Welcome to the jukebox</h1>
 <p class="hidden" id="message"><span id="message_content" aria-live="polite">No message yet.</span> <input type="button" id="message_button" value="OK"></p>
 <div id="now_playing">Loading...</div>
-<div id="progress">Track progress"</div>
+<div id="progress">Track Progress</div>
 <hr>
 {% for id in ['artist', 'album', 'playlist'] %}
 <div class="hidden" id="{{ id }}">
