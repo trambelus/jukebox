@@ -143,7 +143,10 @@ $(document).ready(function () {
 {% block main %}
 <h1>Welcome to the jukebox</h1>
 <p class="hidden" id="message"><span id="message_content" aria-live="polite">No message yet.</span> <input type="button" id="message_button" value="OK"></p>
+<div class="toggle" id="now_playing_div"><h2>Now Playing</h2></div>
+<div class="now_playing_div">
 <div id="now_playing">Loading...</div>
+</div>
 <div id="progress">Track Progress</div>
 <hr>
 {% for id in ['artist', 'album', 'playlist'] %}

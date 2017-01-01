@@ -1,11 +1,13 @@
 """Jukebox app routes."""
 
+from math import floor
+from sound_lib.main import BassError
 from gmusicapi.exceptions import CallFailure
 from .app import app
 from .api import api
 from .environment import render_template, format_lyrics, format_track, format_artist, format_album, format_playlist, tracks_table_header, environment
 from .search_form import SearchForm
-from .util import convert
+from .util import convert, queue_duration
 from .settings import ISettings
 from . import metadata
 from lyricscraper.lyrics import get_lyrics as _get_lyrics
@@ -178,7 +180,10 @@ def skip(request):
     """Skip the currently playing track."""
     settings = ISettings(request.getSession())
     if app.stream and (request.getSession().uid == app.owner or request.transport.getHost().host == localhost):
-        app.stream.pause()
+        try:
+            app.stream.pause()
+        except BassError:
+            pass
         app.stream = None
         app.owner = None
         app.track = None
@@ -236,15 +241,15 @@ def get_json(request):
     d = {}
     settings = ISettings(request.getSession())
     if app.track is None:
-        d['now_playing'] = '<h2>Nothing Playing</h2>'
+        d['now_playing'] = '<p>Nothing Playing</p>'
         d['progress'] = 0
     else:
-        d['now_playing'] = '<h2>Now Playing: {0}</h2>\n<p>{lyrics} | <a class="track-skip" href="/skip">Skip</a></p>\n<h3>By</h3>{artists}'.format(
+        d['now_playing'] = '<p>Now Playing: {0}</p>\n<p>{lyrics} | <a class="track-skip" href="/skip">Skip</a></p>\n<h3>By</h3>{artists}'.format(
             app.track,
             lyrics = format_lyrics(app.track),
             artists = '\n'.join([format_artist(a) for a in app.track.artists])
         )
-        d['progress'] = int((100.0 / (app.stream.get_length() - 1)) * app.stream.get_position())
+        d['progress'] = floor((100.0 / (app.stream.get_length() - 1)) * app.stream.get_position())
     if settings.tracks:
         d['tracks'] = tracks_table_header + '\n'.join([format_track(t) for t in settings.tracks]) + '\n</table>'
     else:
@@ -281,7 +286,7 @@ def get_json(request):
             album_art = '<a href="{0}" target="_blank"><img str="{0}" alt="Album art"></a> '.format(track.artists[0].artwork_urls[0]) if track.artists and track.artists[0].artwork_urls else '',
             delete = '<a class="track-delete" id="{0.id}">Delete</a>'.format(track)
         ) for track in app.queue])
-        text += '\n</ul>'
+        text += '\n</ul>\n<p>Duration: %s.</p>' % queue_duration()
         d['queue'] = text
     else:
         d['queue'] = '<p>The play queue is empty.</p>'

@@ -1,47 +1,14 @@
 """The jinja2 environment."""
 
 import application, os.path
-from datetime import timedelta
 from jinja2 import Environment, FileSystemLoader
 from .app import app
 from .settings import ISettings
+from .util import format_timedelta, queue_duration
 
 environment = Environment(
     loader = FileSystemLoader(os.path.join('jukebox', 'templates'))
 )
-
-def format_timedelta(td):
-    """Format timedelta td."""
-    fmt = [] # The format as a list.
-    seconds = int(td.total_seconds())
-    years, seconds = divmod(seconds, 31536000)
-    if years:
-        fmt.append('%d %s' % (years, 'year' if years == 1 else 'years'))
-    months, seconds = divmod(seconds, 2592000)
-    if months:
-        fmt.append('%d %s' % (months, 'month' if months == 1 else 'months'))
-    days, seconds = divmod(seconds, 86400)
-    if days:
-        fmt.append('%d %s' % (days, 'day' if days == 1 else 'days'))
-    hours, seconds = divmod(seconds, 3600)
-    if hours:
-        fmt.append('%d %s' % (hours, 'hour' if hours == 1 else 'hours'))
-    minutes, seconds = divmod(seconds, 60)
-    if minutes:
-        fmt.append('%d %s' % (minutes, 'minute' if minutes == 1 else 'minutes'))
-    if seconds:
-        fmt.append('%d %s' % (seconds, 'second' if seconds == 1 else 'seconds'))
-    if len(fmt) == 1:
-        return fmt[0]
-    else:
-        res = ''
-        for pos, item in enumerate(fmt):
-            if pos == len(fmt) - 1:
-                res += ', and '
-            elif res:
-                res += ', '
-            res += item
-        return res
 
 environment.filters['format_timedelta'] = format_timedelta
 
@@ -131,5 +98,5 @@ def render_template(request, name, *args, **kwargs):
     kwargs.setdefault('request', request)
     kwargs.setdefault('session', request.getSession())
     kwargs.setdefault('settings', ISettings(kwargs['session']))
-    kwargs.setdefault('duration', sum([track.duration for track in app.queue], timedelta()))
+    kwargs.setdefault('duration', queue_duration())
     return template.render(*args, **kwargs)
