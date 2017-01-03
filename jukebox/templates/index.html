@@ -59,7 +59,6 @@ $(document).ready(function () {
         e.preventDefault()
         var search = $("#search").val()
         if (search) {
-            $("#search").val("")
             $.get(encodeURI("/modern_search/" + search))
         } else {
             alert("You must enter something to search for.")
@@ -87,6 +86,7 @@ $(document).ready(function () {
                 }
                 if (data.tracks != old_tracks) {
                     old_tracks = data.tracks
+                    $("#search").val("")
                     $("#track_results").html(data.tracks)
                 }
                 if (data.artists != old_artists) {
