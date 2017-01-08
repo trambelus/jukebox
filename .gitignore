@@ -89,3 +89,4 @@ ENV/
 .ropeproject
 creds.ini
 *.zip
+queue.txt

@@ -1,6 +1,10 @@
 """The main entry for the jukebox."""
 
+queue_file = 'queue.txt'
+
 if __name__ == '__main__':
+    import os
+    import os.path
     from default_argparse import parser
     parser.add_argument('--host', default = '0.0.0.0', help = 'The interface on which to run the web server')
     parser.add_argument('-p', '--port', type = int, default = 80, help = 'The port to run the Jukebox on')
@@ -55,8 +59,34 @@ if __name__ == '__main__':
     args.interval = abs(args.interval)
     logging.info('Checking the queue every %.2f seconds.', args.interval)
     loop.start(args.interval)
+    if os.path.isfile(queue_file):
+        from jukebox.metadata import get_track
+        logging.info('Found queue file.')
+        with open(queue_file, 'r') as f:
+            for line in f.readlines():
+                id = line.strip()
+                try:
+                    data = api.get_track_info(id)
+                    track = get_track(data)
+                    logging.info('Loading %r to the queue.')
+                    app.queue.append(track)
+                except Exception as e:
+                    logging.info('Failed to get track with id %r:', id)
+                    logging.exception(e)
+                    continue
+        os.remove(queue_file)
+    else:
+        logging.info('No queue file found.')
     try:
         app.run(args.host, args.port, logFile = args.log_file)
+        if app.queue:
+            with open(queue_file, 'w') as f:
+                for track in app.queue:
+                    f.write(track.id)
+                    f.write('\n')
+            logging.info('Dumped the queue.')
+        else:
+            logging.info('No queue to dump.')
     except Exception as e:
         logging.exception(e)
         logging.critical('Starting the app failed: %s.', e)
