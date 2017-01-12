@@ -1,5 +1,7 @@
 """Objects representing meta data."""
 
+from threading import Thread
+from lyricscraper.lyrics import get_lyrics
 from datetime import timedelta
 
 tracks = {}
@@ -130,6 +132,7 @@ class Track:
         self.track_umber = None
         self.genre = None
         self.duration = None
+        self.lyrics = None
         self.populate(data)
     
     def populate(self, data):
@@ -154,6 +157,12 @@ class Track:
             self.genre = 'No genre'
         if 'durationMillis' in data:
             self.duration = timedelta(seconds = int(data['durationMillis']) / 1000)
+        Thread(target=self.set_lyrics).start()
+    
+    def set_lyrics(self):
+        """Set the lyrics for this track."""
+        if self.artists:
+            self.lyrics = get_lyrics(self.artists[0].name, self.title)
     
     def __str__(self):
         return self.title

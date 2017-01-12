@@ -34,6 +34,7 @@ function fix_links() {
 
 // Old search results.
 old_now_playing = null
+old_lyrics = null
 old_tracks = []
 old_artists = []
 old_albums = []
@@ -78,6 +79,10 @@ $(document).ready(function () {
                 if (data.now_playing != old_now_playing) {
                     old_now_playing = data.now_playing
                     $("#now_playing").html(data.now_playing)
+                }
+                if (data.lyrics != old_lyrics) {
+                    old_lyrics = data.lyrics
+                    $("#lyrics").html(data.lyrics)
                 }
                 $("#progress").progressbar({value: data.progress}).text(data.progress)
                 if (data.tracks_header != old_tracks_header) {
@@ -146,6 +151,10 @@ $(document).ready(function () {
 <div class="toggle" id="now_playing_div"><h2>Now Playing</h2></div>
 <div class="now_playing_div">
 <div id="now_playing">Loading...</div>
+</div>
+<div class="toggle" id="lyrics_div"><h2>Lyrics</h2></div>
+<div class="hidden lyrics_div">
+<div id="lyrics">Loading...</div>
 </div>
 <div id="progress">Track Progress</div>
 <hr>

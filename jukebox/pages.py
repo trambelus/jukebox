@@ -5,7 +5,7 @@ from sound_lib.main import BassError
 from gmusicapi.exceptions import CallFailure
 from .app import app
 from .api import api
-from .environment import render_template, format_lyrics, format_track, format_artist, format_album, format_playlist, tracks_table_header, environment
+from .environment import render_template, format_track, format_artist, format_album, format_playlist, tracks_table_header, environment
 from .search_form import SearchForm
 from .util import convert, queue_duration
 from .settings import ISettings
@@ -99,6 +99,7 @@ def get_album(request, id):
     settings.playlist = None
     settings.album = None
     try:
+        print('Album: %r.' % id)
         album = yield api.get_album_info(id)
         settings.album = metadata.get_album(album)
         settings.tracks_header = str(environment.filters['escape'](settings.album.name))
@@ -243,13 +244,21 @@ def get_json(request):
     if app.track is None:
         d['now_playing'] = '<p>Nothing Playing</p>'
         d['progress'] = 0
+        d['lyrics'] = d['now_playing']
     else:
-        d['now_playing'] = '<p>Now Playing: {0}</p>\n<p>{lyrics} | <a class="track-skip" href="/skip">Skip</a></p>\n<h3>By</h3>{artists}'.format(
+        d['now_playing'] = '<p>{0} | <a class="track-skip" href="/skip">Skip</a></p>\n<h3>By</h3>{artists}'.format(
             app.track,
-            lyrics = format_lyrics(app.track),
             artists = '\n'.join([format_artist(a) for a in app.track.artists])
         )
         d['progress'] = floor((100.0 / (app.stream.get_length() - 1)) * app.stream.get_position())
+        lyrics = app.track.lyrics
+        if lyrics is None:
+            d['lyrics'] = '<p>No lyrics found.</p>'
+        else:
+            d['lyrics'] = '<h3>Engine: {}</h3><p>{}</p>'.format(
+                lyrics.engine.name,
+                lyrics.lyrics.replace('\n\n', '</p><p>').replace('\n', '<br>')
+            )
     if settings.tracks:
         d['tracks'] = tracks_table_header + '\n'.join([format_track(t) for t in settings.tracks]) + '\n</table>'
     else:

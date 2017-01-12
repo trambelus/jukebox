@@ -15,10 +15,10 @@ environment.filters['format_timedelta'] = format_timedelta
 def format_track(track):
     """Format a track into a table row: track number, track title, album, artist(s), album art."""
     escape = environment.filters['escape']
-    return '<tr>\n<td>{0.track_number}</td>\n<td><a class="track-queue" id="{0.id}" href="/queue_track/{0.id}">{title}</a></td>\n<td><a class="track-album" id="{0.id}" href="/album/{0.album.id}">{album}</a></td>\n<td>{artists}</td>\n<td>{duration}</td>\n<td>{album_art}</td>\n<td>{lyrics}</td>\n</tr>\n'.format(
+    return '<tr><td>{0.track_number}</td><td><a class="track-queue" id="{0.id}">{title}</a></td><td>{album}</td><td>{artists}</td><td>{duration}</td><td>{album_art}</td><td>{lyrics}</td></tr>'.format(
         track,
         title = escape(track.title),
-        album = escape(track.album),
+        album = '<a class="track-album" id="{}">{}</a>'.format(track.album.id, escape(track.album)) if track.album else '-',
         artists = ', '.join(['<a class="track-artist" id="{0.id}" href="/artist/{0.id}">{0.name}</a>'.format(artist) for artist in track.artists]),
         duration = format_timedelta(track.duration),
         album_art = '<a href="{0.artwork}" target="_blank"><img src="{0.artwork}" alt="Album art"></a>'.format(track.album) if track.album.artwork is not None else '-',
